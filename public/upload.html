@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>XMLHttpRequest上传文件进度实现</title>
+    <script type="text/javascript">
+        function UpladFile() {
+            var e = document.getElementById("file").files[0]
+            var o = "/{{.uploads}}"
+            var t = new FormData;
+            t.append("files", e), xhr = new XMLHttpRequest, xhr.open("post", o, !0), xhr.onload = uploadComplete, xhr
+                .onerror = uploadFailed, xhr.upload.onprogress = progressFunction, xhr.upload.onloadstart =
+                function () {
+                    ot = (new Date).getTime(), oloaded = 0
+                }, xhr.send(t)
+        }
+
+        function progressFunction(e) {
+            let o = document.getElementById("progressBar"),
+                 t = document.getElementById("percentage");
+            e.lengthComputable && (o.max = e.total, o.value = e.loaded, t.innerHTML = Math.round(e.loaded / e.total *
+                100) + "%");
+            var n = document.getElementById("time"),
+                a = (new Date).getTime(),
+                d = (a - ot) / 1e3;
+            if (!(0 != oloaded && 1 > d)) {
+                ot = (new Date).getTime();
+                var l = e.loaded - oloaded;
+                oloaded = e.loaded;
+                var r = l / d,
+                    u = r,
+                    i = "b/s";
+                r / 1024 > 1 && (r /= 1024, i = "k/s"), r / 1024 > 1 && (r /= 1024, i = "M/s"), r = r.toFixed(1);
+                var p = ((e.total - e.loaded) / u).toFixed(1);
+                n.innerHTML = "，速度：" + r + i + "，剩余时间：" + p + "s", 0 == u && (n.innerHTML = "上传已取消")
+            }
+        }
+
+        function uploadComplete(e) {
+            document.documentElement.innerHTML = e.target.responseText
+        }
+
+        function uploadFailed() {
+            alert("上传失败！")
+        }
+
+        function cancleUploadFile() {
+            /*xhr.abort();*/
+            window.location.reload();
+        }
+
+        var xhr, ot, oloaded;
+    </script>
+</head>
+
+<body>
+<h1>{{.uploads}}</h1>
+<progress id="progressBar" value="0" max="100" style="width:300px"></progress>
+<span id="percentage"></span><span id="time"></span><br><br><input type="file" id="file" name="files"> <input
+        type="button" onclick="UpladFile()" value="上传"> <input type="button" onclick="cancleUploadFile()" value="取消">
+</body>
+
+</html>
